@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace TicketBookingCore
 {
     public class TicketBookingBase
-    {
+    {   // Base class for ticket booking
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
