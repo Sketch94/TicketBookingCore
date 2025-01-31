@@ -2,22 +2,36 @@
 {
     public class TicketBookingRequestProcessor
     { // Class to process ticket booking request
-        public TicketBookingRequestProcessor()
+        private readonly TicketBookingBase _dbContext;
+
+        public TicketBookingRequestProcesser(TicketBookingBase dbContext)
         {
-            // Constructor
+            _dbContext = dbContext;
         }
 
-        public TicketBookingResponse Book(TicketBookingRequest? request)
+        public TicketBookingResponse Book(TicketBookingRequest request)
         {
-            // Check if request is null
-            ArgumentNullException.ThrowIfNull(request);
+            if (request == null)
+            {
+                throw new ArgumentNullException(nameof(request));
 
-            // Logic to book ticket
-            return new TicketBookingResponse
+            }
+
+            var booking = new TicketBooking
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email
+            };
+
+            _dbContext.TicketBooking.Add(booking);
+            _dbContext.SaveChanges();
+
+            return new TicketBookingResponse
+            {
+                FirstName = booking.FirstName,
+                LastName = booking.LastName,
+                Email = booking.Email
             };
         }
     }

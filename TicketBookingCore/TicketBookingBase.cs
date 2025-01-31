@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace TicketBookingCore
 {
-    public class TicketBookingBase
+    public class TicketBookingBase : DbContext
     {   // Base class for ticket booking
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
-        public string Email { get; set; }
 
+        public DbSet<TicketBooking> TicketBooking { get; set; }
+
+        public TicketBookingBase(DbContextOptions<TicketBookingBase> options)
+            : base(options) { }
     }
 }
