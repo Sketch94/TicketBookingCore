@@ -44,7 +44,7 @@ namespace TicketBookingCore.Tests
         public void ShouldThrowExceptionIfRequestIsNull()
         {
             // Act
-            var exception = Assert.Throws<ArgumentNullException>(() => _processor.Book(null));
+            var exception = Assert.Throws<ArgumentNullException>(() => _processor.Book(null!));
 
             //Assert
             Assert.Equal("request", exception.ParamName);
@@ -57,7 +57,7 @@ namespace TicketBookingCore.Tests
         public void ShouldSaveToDatabase()
         {
             // Arrange
-            TicketBooking savedTicketBooking = null;
+            TicketBooking savedTicketBooking = null!;
 
             // Setup the Save method to capture the saved ticket booking
             _ticketBookingRepositoryMock.Setup(x => x.Save(It.IsAny<TicketBooking>()))
@@ -87,14 +87,11 @@ namespace TicketBookingCore.Tests
             Assert.Equal(_request.LastName, savedTicketBooking.LastName);
             Assert.Equal(_request.Email, savedTicketBooking.Email);
 
-            Console.WriteLine($"Saved booking: {savedTicketBooking.FirstName}{savedTicketBooking.LastName}, {savedTicketBooking.Email}");
-        }
-
-        [Fact]
-        public void ShouldRemoveFromDatabase()
-        {
-            TicketBooking savedTicketBooking = null;
-
+            // Testing in vs powershell if the code works. 
+            Console.WriteLine($"Passenger: {savedTicketBooking.Id}\n" +
+                              $"Firstname: {savedTicketBooking.FirstName}\n" +
+                              $"Lastname: {savedTicketBooking.LastName}\n" +
+                              $"Email: {savedTicketBooking.Email}");
 
         }
     }

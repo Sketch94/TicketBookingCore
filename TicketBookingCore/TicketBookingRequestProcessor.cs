@@ -37,15 +37,5 @@ namespace TicketBookingCore
                 Email = request.Email
             };
         }
-
-        public void CancelBooking(int bookingId)
-        {
-            if (bookingId == 0)
-            {
-                throw new ArgumentException("Invalid booking ID", nameof(bookingId));
-            }
-
-            _ticketBookingRepository.Remove(bookingId);
-        }
     }
 }
