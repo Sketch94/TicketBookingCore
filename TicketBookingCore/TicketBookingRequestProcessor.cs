@@ -1,38 +1,51 @@
-﻿namespace TicketBookingCore
+﻿
+namespace TicketBookingCore
 {
     public class TicketBookingRequestProcessor
-    { // Class to process ticket booking request
-        private readonly TicketBookingBase _dbContext;
-
-        public TicketBookingRequestProcesser(TicketBookingBase dbContext)
+    {
+        //suggesting that _ticketBookingRepository will hold a reference to an object that implements this interface.
+        private readonly ITicketBookingRepository _ticketBookingRepository;
+        public TicketBookingRequestProcessor(ITicketBookingRepository ticketBookingRepository)
         {
-            _dbContext = dbContext;
+            _ticketBookingRepository = ticketBookingRepository;
         }
 
         public TicketBookingResponse Book(TicketBookingRequest request)
         {
-            if (request == null)
+            if (request is null)
             {
                 throw new ArgumentNullException(nameof(request));
-
             }
 
-            var booking = new TicketBooking
+            _ticketBookingRepository.Save(Create<TicketBooking>(request));
+
+            return Create<TicketBookingResponse>(request);
+        }
+        /// <summary>
+        /// This method creates a new instance of the specified type 
+        /// and sets the properties from the request object.
+        /// </summary>
+        /// <typeparam name = "T" ></ typeparam >
+        /// < param name="request"></param>
+        /// <returns></returns>
+        private static T Create<T>(TicketBookingRequest request) where T : TicketBookingBase, new()
+        {
+            return new T
             {
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 Email = request.Email
             };
+        }
 
-            _dbContext.TicketBooking.Add(booking);
-            _dbContext.SaveChanges();
-
-            return new TicketBookingResponse
+        public void CancelBooking(int bookingId)
+        {
+            if (bookingId == 0)
             {
-                FirstName = booking.FirstName,
-                LastName = booking.LastName,
-                Email = booking.Email
-            };
+                throw new ArgumentException("Invalid booking ID", nameof(bookingId));
+            }
+
+            _ticketBookingRepository.Remove(bookingId);
         }
     }
 }

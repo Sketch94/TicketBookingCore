@@ -1,46 +1,101 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Moq;
 
-namespace TicketBookingCore.Tests;
-
-public class TicketBookingRequestProcessorTests
+namespace TicketBookingCore.Tests
 {
-    private readonly TicketBookingRequestProcessor _processor;
-
-    public TicketBookingRequestProcessorTests()
+    public class TicketBookingRequestProcessorTests
     {
-        _processor = new TicketBookingRequestProcessor();
-    }
-
-    // Test method to test the Book method of TicketBookingRequestProcessor
-    [Fact]
-    public void ShouldReturnTicketBookingResultWithRequestValues()
-    {
-        // Arrange
-        var processor = new TicketBookingRequestProcessor();
-
-        var request = new TicketBookingRequest
+        private readonly TicketBookingRequest _request;
+        private readonly Mock<ITicketBookingRepository> _ticketBookingRepositoryMock;
+        private readonly TicketBookingRequestProcessor _processor;
+        public TicketBookingRequestProcessorTests()
         {
-            FirstName = "Armend",
-            LastName = "Berisha",
-            Email = "Armend@demo.com"
-        };
+            _request = new TicketBookingRequest
+            {
+                FirstName = "Armend",
+                LastName = "Berisha",
+                Email = "Armend@outlook.com"
+            };
+            _ticketBookingRepositoryMock = new Mock<ITicketBookingRepository>();
+            _processor = new TicketBookingRequestProcessor(_ticketBookingRepositoryMock.Object);
+        }
 
-        // Act
-        TicketBookingResponse response = _processor.Book(request);
+        [Fact]
+        public void ShouldReturnTicketBookningResultWithRequestValues()
+        {
+            // Arrange
 
-        // Assert
-        Assert.NotNull(response);
-        Assert.Equal(request.FirstName, response.FirstName);
-        Assert.Equal(request.LastName, response.LastName);
-        Assert.Equal(request.Email, response.Email);
-    }
+            var request = new TicketBookingRequest
+            {
+                FirstName = "Armend",
+                LastName = "Berisha",
+                Email = "Armend@outlook.com"
+            };
 
-    [Fact] 
-    public void ShouldThrowExceptionWhenRequestIsNull()
-    {
-        // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => _processor.Book(null));
-        // Assert
-        Assert.Equal("request", exception.ParamName);
+            // Act
+            TicketBookingResponse response = _processor.Book(request);
+
+            // Assert
+            Assert.NotNull(response);
+            Assert.Equal(request.FirstName, response.FirstName);
+            Assert.Equal(request.LastName, response.LastName);
+            Assert.Equal(request.Email, response.Email);
+        }
+        [Fact]
+        public void ShouldThrowExceptionIfRequestIsNull()
+        {
+            // Act
+            var exception = Assert.Throws<ArgumentNullException>(() => _processor.Book(null));
+
+            //Assert
+            Assert.Equal("request", exception.ParamName);
+        }
+
+        /// <summary>
+        /// This test will fail because the method is not implemented yet.
+        /// </summary>
+        [Fact]
+        public void ShouldSaveToDatabase()
+        {
+            // Arrange
+            TicketBooking savedTicketBooking = null;
+
+            // Setup the Save method to capture the saved ticket booking
+            _ticketBookingRepositoryMock.Setup(x => x.Save(It.IsAny<TicketBooking>()))
+            .Callback<TicketBooking>((ticketBooking) =>
+            {
+                savedTicketBooking = ticketBooking;
+            });
+
+            var request = new TicketBookingRequest
+            {
+                FirstName = "Armend",
+                LastName = "Berisha",
+                Email = "Armend@outlook.com"
+            };
+
+
+            // Act
+            _processor.Book(_request);
+
+            // Assert
+
+            /// Verify that the Save method was called once
+            _ticketBookingRepositoryMock.Verify(x => x.Save(It.IsAny<TicketBooking>()), Times.Once);
+
+            Assert.NotNull(savedTicketBooking);
+            Assert.Equal(_request.FirstName, savedTicketBooking.FirstName);
+            Assert.Equal(_request.LastName, savedTicketBooking.LastName);
+            Assert.Equal(_request.Email, savedTicketBooking.Email);
+
+            Console.WriteLine($"Saved booking: {savedTicketBooking.FirstName}{savedTicketBooking.LastName}, {savedTicketBooking.Email}");
+        }
+
+        [Fact]
+        public void ShouldRemoveFromDatabase()
+        {
+            TicketBooking savedTicketBooking = null;
+
+
+        }
     }
 }
